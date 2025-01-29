@@ -2,13 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 function filterData(arr, year, round, sector, city) {
-    console.log('Filtering with:', { year, round, sector, city });
 
-    // Apply filter only if the parameter is provided
     if (year) {
         arr = arr.filter((item) => {
-            const itemYear = item.date.split('-')[0];  // Extract year from date (YYYY-MM-DD)
-            return itemYear === year;  // Match the year directly
+            const itemYear = item.date.split('-')[0];  
+            return itemYear === year; 
         });
     }
 
@@ -24,7 +22,6 @@ function filterData(arr, year, round, sector, city) {
         arr = arr.filter((item) => item.city.toLowerCase() === city.toLowerCase());
     }
 
-    console.log('Filtered data:', arr);  // Log the filtered result to check
     return arr;
 }
 
@@ -53,7 +50,7 @@ function newfundingdata(arr, year, round, sector, city) {
 }
 
 function newsectorDistribution(arr, year, round, sector, city) {
-    arr = filterData(arr, year, round, sector, city);  // Apply filtering
+    arr = filterData(arr, year, round, sector, city);  
     
     const sectorFunding = arr.reduce((accum, curr) => {
         const vertical = curr.vertical.toLowerCase().trim();
@@ -70,13 +67,13 @@ function newsectorDistribution(arr, year, round, sector, city) {
             totalFunding: sectorFunding[sector]
         }))
         .sort((a, b) => b.totalFunding - a.totalFunding)
-        .slice(0, 10); // Limit to top 10 sectors
+        .slice(0, 10); 
 
     return topSectors;
 }
 
 function newtopPerformingCompanies(arr, year, round, sector, city) {
-    arr = filterData(arr, year, round, sector, city);  // Apply filtering
+    arr = filterData(arr, year, round, sector, city); 
     
     const companyFunding = arr.reduce((accum, curr) => {
         const company = curr.startup;
@@ -93,13 +90,13 @@ function newtopPerformingCompanies(arr, year, round, sector, city) {
             totalFunding: companyFunding[company]
         }))
         .sort((a, b) => b.totalFunding - a.totalFunding)
-        .slice(0, 50); // Limit the result to the top 50 companies
+        .slice(0, 50); 
 
     return topCompanies;
 }
 
 function newfundingRound(arr, year, round, sector, city) {
-    arr = filterData(arr, year, round, sector, city);  // Apply filtering
+    arr = filterData(arr, year, round, sector, city);  
     
     const roundFunding = arr.reduce((accum, curr) => {
         const round = curr.round ? curr.round.toLowerCase() : 'unknown';
@@ -114,7 +111,7 @@ function newfundingRound(arr, year, round, sector, city) {
 }
 
 function newregionFunding(arr, year, round, sector, city) {
-    arr = filterData(arr, year, round, sector, city);  // Apply filtering
+    arr = filterData(arr, year, round, sector, city);  
     
     const regionFunding = arr.reduce((accum, curr) => {
         const region = curr.city || 'Unknown';
@@ -131,7 +128,7 @@ function newregionFunding(arr, year, round, sector, city) {
             totalFunding: regionFunding[region]
         }))
         .sort((a, b) => b.totalFunding - a.totalFunding)
-        .slice(0, 10); // Limit to top 10 regions
+        .slice(0, 10); 
 
     return topRegions;
 }
@@ -143,7 +140,7 @@ function newinvestorParticipation(arr, year, round, sector, city) {
         const investors = curr.investors
             .split(',')
             .map(name => name.trim())
-            .filter(name => name); // Exclude empty strings
+            .filter(name => name); 
         
         investors.forEach(investor => {
             if (!accum[investor]) {
@@ -161,7 +158,7 @@ function newinvestorParticipation(arr, year, round, sector, city) {
             participationCount: investorCounts[investor]
         }))
         .sort((a, b) => b.participationCount - a.participationCount)
-        .slice(0, 50); // Limit to top 50 investors
+        .slice(0, 50); 
 
     return topInvestors;
 }

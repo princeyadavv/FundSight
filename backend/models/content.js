@@ -5,9 +5,7 @@ const contentSchema = mongoose.Schema({
         required: true
     }
     ,
-    content: {
-        type: String,
-    },
+    content: { type: Array, default: [] },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'

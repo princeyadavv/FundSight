@@ -10,7 +10,7 @@ const {checkAuthentication}= require('./middlewares/auth')
 const staticRouter = require('./routes/staticrouter');
 const newstat = require('./routes/newstatic');
 const contentRouter = require('./routes/contentrouter')
-
+const profileRouter = require('./routes/profile')
 
 
 
@@ -19,13 +19,15 @@ const PORT = process.env.PORT || 5000
 
 app.use(cors());
 app.use(express.json())
+app.use(express.urlencoded())
 app.use('/',staticRouter)
 app.use('/api',newstat)
 app.use('/workflow',checkAuthentication,contentRouter)
+app.use('/profile',checkAuthentication,profileRouter)
 
 
 
-mongoose.connect(process.env.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.mongoURI)
   .then(() => {
     console.log('MongoDB connected successfully');
     app.listen(PORT, () => {
