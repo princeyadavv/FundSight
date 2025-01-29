@@ -12,7 +12,8 @@ const decodeToken = (token) => {
     if (!token) return null;
     const payloadBase64 = token.split(".")[1]; // Extract payload
     const payload = atob(payloadBase64); // Decode base64
-    return JSON.parse(payload); // Convert JSON string to object
+    console.log(payload)
+    return JSON.parse(payload); // Convert JSON string to 
   } catch (error) {
     console.error("Invalid token", error);
     return null;

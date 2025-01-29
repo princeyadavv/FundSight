@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { FaInstagramSquare, FaDiscord, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaDiscord, FaTwitter } from "react-icons/fa";
+
 const ContactPage = () => {
   const socialMedia = [
-    { icon: <FaInstagramSquare />, color: "text-pink-500", bg: "bg-[#6368e8]" },
-    { icon: <FaDiscord />, color: "text-blue-500", bg: "bg-[#6368e8] " },
-    { icon: <FaTwitter />, color: "text-blue-400", bg: "bg-[#6368e8]" },
+    { icon: <FaInstagram /> },
+    { icon: <FaDiscord /> },
+    { icon: <FaTwitter /> },
   ];
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    websiteType: "Web Design",
     message: "",
   });
 
@@ -24,15 +25,14 @@ const ContactPage = () => {
 
   const handleSend = (e) => {
     e.preventDefault();
-
     console.log(formData);
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-8">
-      <div className="bg-white shadow-lg rounded-xl w-full max-w-4xl flex">
+    <div className="flex flex-col lg:flex-row justify-center items-center min-h-screen bg-gray-100 p-8">
+      <div className="bg-white shadow-lg rounded-xl w-full max-w-4xl flex flex-col lg:flex-row">
         {/* Left Section - Contact Info */}
-        <div className="bg-[#6368e8] text-white p-8 rounded-l-xl w-1/3 flex flex-col justify-between">
+        <div className="bg-[#6368e8] text-white p-8 rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none w-full lg:w-1/3 flex flex-col justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Contact Information</h2>
             <p className="mt-2 text-sm text-purple-200">
@@ -40,7 +40,6 @@ const ContactPage = () => {
               hours.
             </p>
           </div>
-
           <div className="mt-6 space-y-4">
             <p className="flex items-center">
               📞 <span className="ml-3">+0123 4567 8910</span>
@@ -52,15 +51,12 @@ const ContactPage = () => {
               📍 <span className="ml-3">102 Street 2714 Don</span>
             </p>
           </div>
-
           <div className="flex space-x-4 mt-6">
             {socialMedia.map((item, index) => (
               <span
                 key={index}
-                className={`cursor-pointer text-2xl h-10 w-10 text-white flex justify-center items-center rounded-full transition duration-300 ${
-                  item.bg
-                } ${item.color} hover:bg-white hover:text-${
-                  item.color.split("-")[1]
+                className={`cursor-pointer text-2xl h-10 w-10 flex justify-center items-center text-white rounded-full transition duration-300
+                     hover:bg-white hover:text-[#6368e8]
                 }-500`}
               >
                 {item.icon}
@@ -70,7 +66,7 @@ const ContactPage = () => {
         </div>
 
         {/* Right Section - Contact Form */}
-        <div className="w-2/3 p-8">
+        <div className="w-full lg:w-2/3 p-8">
           <h2 className="text-3xl font-semibold text-gray-800 text-center">
             Contact Us
           </h2>
@@ -79,7 +75,7 @@ const ContactPage = () => {
           </p>
 
           <form onSubmit={handleSend} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-gray-600">Full Name</label>
                 <input
@@ -87,7 +83,7 @@ const ContactPage = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-md mt-1"
+                  className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-[#6368e8] outline-none "
                   placeholder="John Doe"
                 />
               </div>
@@ -98,7 +94,7 @@ const ContactPage = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-md mt-1"
+                  className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-[#6368e8] outline-none "
                   placeholder="+90 543 779 94 64"
                 />
               </div>
@@ -111,32 +107,9 @@ const ContactPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-2 border rounded-md mt-1"
+                className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-[#6368e8] outline-none "
                 placeholder="you@example.com"
               />
-            </div>
-
-            <div>
-              <label className="text-gray-600">
-                What type of website do you need?
-              </label>
-              <div className="flex items-center space-x-4 mt-2">
-                {["Web Design", "Web Development", "Logo Design", "Other"].map(
-                  (type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="websiteType"
-                        value={type}
-                        checked={formData.websiteType === type}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      {type}
-                    </label>
-                  )
-                )}
-              </div>
             </div>
 
             <div>
@@ -145,14 +118,14 @@ const ContactPage = () => {
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full p-2 border rounded-md mt-1 resize-none"
+                className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-[#6368e8] outline-none  "
                 rows="4"
                 placeholder="Write your message..."
               />
             </div>
 
             <div className="text-right">
-              <button className="bg-[#6368e8] text-white py-2 px-6 rounded-lg  transition">
+              <button className="bg-[#6368e8] text-white py-2 px-6 rounded-lg transition">
                 Send Message
               </button>
             </div>

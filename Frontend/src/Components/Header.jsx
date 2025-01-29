@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { token } = useToken();
+  const { token, decodeToken } = useToken();
   const navigate = useNavigate();
   const location = useLocation(); // Get current route
   const menuRef = useRef(null);
@@ -15,6 +15,8 @@ const Header = () => {
     !!(token || localStorage.getItem("bankai"))
   );
 
+  
+  console.log(decodeToken(token));
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("bankai"));
   }, [token]);
@@ -72,76 +74,53 @@ const Header = () => {
         {/* Navigation Menu */}
         <nav
           ref={menuRef}
-          className={`absolute lg:static top-16 left-0 w-full lg:w-auto bg-white lg:bg-transparent shadow-lg lg:shadow-none transition-all duration-300 ${
-            menuOpen ? "block" : "hidden"
-          } lg:flex items-center space-x-6 p-4 lg:p-0`}
+          className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg transition-transform duration-300 transform ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          } lg:static lg:w-auto lg:bg-transparent lg:shadow-none lg:translate-x-0 flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6 p-6 lg:p-0`}
         >
-          <Link
-            to="/"
-            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-              "/"
-            )}`}
-          >
-            Home
-          </Link>
-          <Link
-            to="/dashboard"
-            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-              "/"
-            )}`}
-          >
-            DashBoard
-          </Link>
-          <Link
-            to="/chart"
-            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-              "/"
-            )}`}
-          >
-            Chart
-          </Link>
-          <Link
-            to="/about"
-            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-              "/about"
-            )}`}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/contact"
-            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-              "/contact"
-            )}`}
-          >
-            Contact Us
-          </Link>
+          {/* Close button for mobile menu */}
+          <button className="lg:hidden self-end mb-4" onClick={toggleMenu}>
+            <X className="w-6 h-6" />
+          </button>
+
+          {["/", "/dashboard",  "/about", "/contact", "/profile"].map((path) => (
+            <Link
+              key={path}
+              to={path}
+              className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
+                path
+              )}`}
+              onClick={() => setMenuOpen(false)} // Close menu on click
+            >
+              {path === "/"
+                ? "Home"
+                : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
+            </Link>
+          ))}
+
           {isLoggedIn ? (
             <button
-              onClick={handleLogout}
+              onClick={() => {
+                handleLogout();
+                setMenuOpen(false);
+              }}
               className="block text-gray-800 font-medium hover:text-red-500 py-2 lg:inline"
             >
               Logout
             </button>
           ) : (
-            <>
+            ["/login", "/signup"].map((path) => (
               <Link
-                to="/login"
+                key={path}
+                to={path}
                 className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-                  "/login"
+                  path
                 )}`}
+                onClick={() => setMenuOpen(false)} // Close menu on click
               >
-                Login
+                {path === "/login" ? "Login" : "Sign Up"}
               </Link>
-              <Link
-                to="/signup"
-                className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
-                  "/signup"
-                )}`}
-              >
-                Sign Up
-              </Link>
-            </>
+            ))
           )}
         </nav>
       </div>

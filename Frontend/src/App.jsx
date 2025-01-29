@@ -10,6 +10,7 @@ import { TokenProvider } from "./Components/context/TokenContent";
 import Dashboard from "./Components/Chart/DashBoard";
 // import { Chart } from "";
 import ChartTo from "./Components/Chart/ChartTo";
+import Profile from "./Components/Profile/Profile";
 // import Home from "./pages/Home";
 // import Contact from "./pages/Contact";
 
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       { path: "/about", element: <About /> },
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/chart", element: <ChartTo /> },
+      { path: "/profile", element: <Profile /> },
     ],
   },
 ]);
