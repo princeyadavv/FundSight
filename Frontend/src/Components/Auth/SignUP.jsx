@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0); // Track progress %
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () =>
     setShowPassword((prevState) => !prevState);
@@ -16,9 +19,26 @@ export default function SignUp() {
     formState: { errors },
   } = useForm();
 
+  // Function to simulate progress animation
+  const startProgress = () => {
+    setProgress(1); // Start from 5% to indicate request started
+    const interval = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress < 90) {
+          return oldProgress + 5; // Gradually increase up to 80%
+        }
+        return oldProgress;
+      });
+    }, 120);
+    return interval;
+  };
+
   const handleSignup = async (data) => {
     setMessage("");
-    console.log(data);
+    setLoading(true);
+    setProgress(0);
+    const progressInterval = startProgress(); // Start progress animation
+
     try {
       const response = await fetch("http://localhost:5000/signup", {
         method: "POST",
@@ -30,17 +50,35 @@ export default function SignUp() {
 
       if (response.ok) {
         setMessage("Account created successfully!");
-        window.location.href = "/login";
+        setTimeout(() => {
+          navigate("/login");
+          setLoading(false);
+          setProgress(0);
+        }, 500);
       } else {
         setMessage(result?.message || "Sign-up failed");
+        setLoading(false);
+        setProgress(0); // Reset progress on error
       }
     } catch (error) {
       setMessage("Error: " + error.message);
+      setLoading(false);
+      setProgress(0);
+    } finally {
+      clearInterval(progressInterval); // Stop progress incrementing
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+      {/* Progress Bar */}
+      {loading && (
+        <div
+          className="fixed top-0 left-0 h-1 bg-[#4e52b4] z-50 transition-all ease-linear"
+          style={{ width: `${progress}%` }}
+        ></div>
+      )}
+
       <div className="bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row max-w-4xl w-full">
         {/* Left Side: Welcome Section */}
         <div className="bg-[#6368e8] text-white p-6 flex flex-col justify-center items-center text-center w-full md:w-1/2">
@@ -52,7 +90,7 @@ export default function SignUp() {
           </p>
           <Link
             to="/login"
-            className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-blue-600 transition"
+            className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-[#4e52b4] transition"
           >
             Login
           </Link>
@@ -162,10 +200,7 @@ export default function SignUp() {
               )}
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-[#6368e8] text-white py-2 rounded-lg hover:bg-blue-700 transition"
-            >
+            <button type="submit" className="button w-full">
               Sign Up
             </button>
           </form>

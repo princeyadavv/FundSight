@@ -7,6 +7,9 @@ import About from "./pages/About";
 import Login from "./Components/Auth/Login";
 import SignUp from "./Components/Auth/SignUP";
 import { TokenProvider } from "./Components/context/TokenContent";
+import Dashboard from "./Components/Chart/DashBoard";
+// import { Chart } from "";
+import ChartTo from "./Components/Chart/ChartTo";
 // import Home from "./pages/Home";
 // import Contact from "./pages/Contact";
 
@@ -20,6 +23,8 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <SignUp /> },
       { path: "/about", element: <About /> },
+      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/chart", element: <ChartTo /> },
     ],
   },
 ]);

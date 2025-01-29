@@ -9,6 +9,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Get current route
   const menuRef = useRef(null);
+  const [loading, setLoading] = useState(false); // Track loading state
 
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!(token || localStorage.getItem("bankai"))
@@ -32,9 +33,13 @@ const Header = () => {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   const handleLogout = () => {
-    localStorage.removeItem("bankai");
-    setIsLoggedIn(false);
-    navigate("/");
+    setLoading(true);
+    setTimeout(() => {
+      localStorage.removeItem("bankai");
+      setIsLoggedIn(false);
+      navigate("/");
+      setLoading(false);
+    }, 900);
   };
 
   // Function to check active route
@@ -43,6 +48,9 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-1 bg-[#4e52b4] animate-progress z-50"></div>
+      )}
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
@@ -75,6 +83,22 @@ const Header = () => {
             )}`}
           >
             Home
+          </Link>
+          <Link
+            to="/dashboard"
+            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
+              "/"
+            )}`}
+          >
+            DashBoard
+          </Link>
+          <Link
+            to="/chart"
+            className={`block text-gray-800 font-medium hover:text-blue-500 py-2 lg:inline ${isActive(
+              "/"
+            )}`}
+          >
+            Chart
           </Link>
           <Link
             to="/about"

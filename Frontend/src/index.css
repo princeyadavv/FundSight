@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+.button {
+    padding-left: 1.5rem; /* px-6 */
+    padding-right: 1.5rem; /* px-6 */
+    padding-top: 0.5rem; /* py-2 */
+    padding-bottom: 0.5rem; /* py-2 */
+    background-color: #6368e8; /* bg-blue-500 */
+    color: white; /* text-white */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    transition: all 0.2s;
+  }
+  
+  .button:hover {
+    background-color: #4e52b4; /* hover:bg-blue-600 */
+  }
+  
+
+  .center{
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Customizing the progress bar */
+ 
+
+
+ 
+@keyframes progress {
+  0% { width: 0%; }
+  50% { width: 75%; }
+  100% { width: 100%; }
+}
+
+.animate-progress {
+  animation: progress 1s ease-in-out infinite;
+}

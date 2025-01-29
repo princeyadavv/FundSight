@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { HiEye, HiEyeOff } from "react-icons/hi"; // Eye icons
+import { HiEye, HiEyeOff } from "react-icons/hi";
 import { useToken } from "../context/TokenContent"; // Adjust the path
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0); // Track progress %
+
   const { saveToken } = useToken();
   const navigate = useNavigate();
 
@@ -18,8 +21,27 @@ export default function Login() {
     formState: { errors },
   } = useForm();
 
+  // Function to simulate progress animation
+  const startProgress = () => {
+    setProgress(1); // Start from 5% to indicate request started
+    const interval = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress < 90) {
+          return oldProgress + 5; // Gradually increase up to 80%
+        }
+        return oldProgress;
+      });
+    }, 120);
+    return interval;
+  };
+
   const handleLogin = async (data) => {
     setError("");
+    setLoading(true);
+    setProgress(0);
+
+    const progressInterval = startProgress(); // Start progress animation
+
     try {
       const response = await fetch("http://localhost:5000/login", {
         method: "POST",
@@ -31,17 +53,38 @@ export default function Login() {
 
       if (response.ok) {
         saveToken(result.token);
-        navigate("/");
+        setProgress(100); // Complete progress immediately
+
+        // Smooth delay before navigation
+        setTimeout(() => {
+          navigate("/");
+          setLoading(false);
+          setProgress(0);
+        }, 500);
       } else {
         setError(result.message || "Login failed");
+        setLoading(false);
+        setProgress(0); // Reset progress on error
       }
     } catch (error) {
       setError("Error: " + error.message);
+      setLoading(false);
+      setProgress(0);
+    } finally {
+      clearInterval(progressInterval); // Stop progress incrementing
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4 relative">
+      {/* Progress Bar */}
+      {loading && (
+        <div
+          className="fixed top-0 left-0 h-1 bg-[#4e52b4] z-50 transition-all ease-linear"
+          style={{ width: `${progress}%` }}
+        ></div>
+      )}
+
       <div className="bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row max-w-4xl w-full">
         {/* Left Side: Welcome Section */}
         <div className="bg-[#6368e8] text-white p-6 md:p-8 flex flex-col justify-center items-center text-center w-full md:w-1/2">
@@ -49,7 +92,7 @@ export default function Login() {
           <p className="text-sm opacity-80 mb-4">New here? Join us today.</p>
           <Link
             to="/signup"
-            className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-blue-600 transition"
+            className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-[#4e52b4] transition"
           >
             Sign Up
           </Link>
@@ -127,9 +170,10 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-[#6368e8] text-white py-2 rounded-lg hover:bg-[#4e52b4] transition"
+              className="w-full bg-[#6368e8] text-white py-2 rounded-lg hover:bg-[#4e52b4] transition duration-300 disabled:bg-gray-400"
+              disabled={loading} // Disable button when loading
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
