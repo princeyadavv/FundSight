@@ -62,30 +62,33 @@ export default function DashBoard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      let YearFundingData = await sendfunction("fundingdata");
+      const YearFundingData = await sendfunction("fundingdata");
       setYearFundingData(YearFundingData);
+  
       let yearsData = YearFundingData.map(
         (item) => item.monthYear.split("-")[1]
       );
       const yearsSet = new Set(yearsData);
       setYears([...yearsSet]);
-
+  
       const sectorsData = await sendfunction("sector-distribution");
       setSectors(sectorsData);
-
+  
       const roundsData = await sendfunction("funding-round");
       setRounds(roundsData);
-
+  
       const regionData = await sendfunction("region-funding");
       setRegions(regionData);
+  
       const topCompanies = await sendfunction("top-companies");
       setTopCompanies(topCompanies);
+  
       const topInvestors = await sendfunction("investor-participation");
       setTopInvestors(topInvestors);
     };
-
+  
     fetchData();
-  }, [selectedYear, selectedSector, selectedRound, selectedRegion]); // Trigger data fetching when any filter changes
+  }, [selectedYear, selectedSector, selectedRound, selectedRegion]);
 
   async function sendfunction(add) {
     setLoading(true); //
@@ -141,8 +144,6 @@ export default function DashBoard() {
       let yearsData = YearFundingData.map(
         (item) => item.monthYear.split("-")[1]
       );
-      const yearsSet = new Set(yearsData);
-      setYears([...yearsSet]);
 
       const sectorsData = await fetchNewData("sector-distribution");
       setSectors(sectorsData);
