@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const user = require('../models/user')
 const{createToken} = require('../services/auth')
+const fs = require('fs')
 
 
 async function handleSignup(req, res) {
@@ -42,6 +43,9 @@ async function handleSignup(req, res) {
     }
   
   }
+
+
+  
   module.exports ={
     handleLogin,handleSignup
   }
