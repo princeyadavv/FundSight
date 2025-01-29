@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Pie, Bar, Line } from "react-chartjs-2";
 // import { useToken } from "../context/TokenContent"; // Adjust the path
 import {
@@ -59,6 +59,7 @@ export default function DashBoard() {
   const [currentInvestorPage, setCurrentInvestorPage] = useState(1);
   const [companiesPerPage] = useState(10); // Show 10 companies per page
   const [investorsPerPage] = useState(10); // Show 10 investors per page
+  const [totalFunding,settotalFunding] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +89,14 @@ export default function DashBoard() {
     };
   
     fetchData();
+
+
   }, [selectedYear, selectedSector, selectedRound, selectedRegion]);
+  useEffect(() => {
+    const x = yearFundingData.reduce((sum, company) => sum + (company.totalFunding || 0), 0);
+    settotalFunding(x)
+    console.log(totalFunding)
+}, );
 
   async function sendfunction(add) {
     setLoading(true); //
@@ -343,7 +351,7 @@ export default function DashBoard() {
           style={{ width: `${progress}%` }}
         ></div>
       )}
-  
+
       <div className="w-[90vw] md:w-[70vw] min-h-[20vh] center flex-col md:flex-row gap-6 my-2 rounded-2xl">
         <div>
           <select
@@ -402,7 +410,12 @@ export default function DashBoard() {
           </select>
         </div>
       </div>
-  
+      <div className="total-funding-container bg-white shadow-lg rounded-lg p-6 text-center">
+  <h2 className="total-funding-heading text-2xl font-semibold text-gray-800">Total Funding For All year</h2>
+  <p className="total-funding-amount text-3xl font-bold text-blue-600 mt-2">${totalFunding.toLocaleString()}</p>
+</div>
+
+
       <div className="w-[90vw] md:w-[95vw] min-h-[60vh] py-10 center flex-col md:flex-row gap-10">
         {/* Display Sector Pie Chart */}
         <div className="p-6 bg-white rounded-2xl shadow-lg">

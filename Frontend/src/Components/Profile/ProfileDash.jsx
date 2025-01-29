@@ -355,7 +355,7 @@ const ProfileDash = () => {
     formData.append("file", file); // Append file
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://localhost:5000/workflow/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Attach token
