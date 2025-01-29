@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+const content = require('../models/content')
 function filterData(arr, year, round, sector, city) {
 
     if (year) {
@@ -25,7 +25,10 @@ function filterData(arr, year, round, sector, city) {
     return arr;
 }
 
-
+async function getDataFromDatabase(contentid){
+    const data = await content.findById(contentid)
+    return data
+}
 function newfundingdata(arr, year, round, sector, city) {
     arr = filterData(arr, year, round, sector, city); 
 

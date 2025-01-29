@@ -93,21 +93,25 @@ async function createPost(req, res) {
   try {
     const { title } = req.body;
     const user = req.user;
-    const objectId = new mongoose.Types.ObjectId(user.id);
+    console.log(user._id)
+    const objectId = new mongoose.Types.ObjectId(user._id);
+    console.log(objectId)
 
-    // Create new content document
     const newContent = await content.create({
       Title: title,
       createdBy: objectId,
     });
 
-    // Add new content to the user's Workflows array
     await users.findByIdAndUpdate(user._id, { $addToSet: { Workflows: newContent._id } });
 
     return res.status(200).json({ message: "Workflow created successfully", id: newContent.id });
   } catch (error) {
     return res.status(400).json({ message: error });
   }
+}
+
+async function getdata(){
+  
 }
 
 module.exports = { createPost, converter };

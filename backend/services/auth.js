@@ -7,7 +7,6 @@ function createToken(user){
         _id: user._id,
         email: user.email,
         firstName: user.firstname,
-        Workflows: user.Workflows
     }
     const token = jwt.sign(payload,secret)
     return token
