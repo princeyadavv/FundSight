@@ -2,20 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import ProfileCard from "./ProfileCard";
 import { useNavigate } from "react-router-dom";
+import { useToken } from "../context/TokenContent";
 
 const Profile = () => {
   // logout
+  const { token, decodeToken } = useToken();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
-  const logout = () => {
-    setLoading(true);
-    setTimeout(() => {
-      localStorage.removeItem("bankai");
-      navigate("/");
-      setLoading(false);
-    }, 900);
-  };
 
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
@@ -30,19 +22,20 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const token = localStorage.getItem("bankai") || null; // Retrieve token from storage
     try {
       const response = await fetch("http://localhost:5000/workflow/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }), // Wrap title in an object
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include token in Authorization header
+        },
+        body: JSON.stringify({ title }),
       });
-      const result = await response.json();
 
       if (!response.ok) {
         throw new Error("Unable to send title");
       } else {
-        logout();
       }
     } catch (error) {
       console.error("Error uploading title:", error);
@@ -56,15 +49,9 @@ const Profile = () => {
       <section className="container">
         <header></header>
         <div className="pokemon-search">
-          <input
-            type="text"
-            placeholder="Search Pokémon"
-             
-          />
+          <input type="text" placeholder="Search Pokémon" />
         </div>
-        <ul className="cards">
-          
-        </ul>
+        <ul className="cards"></ul>
       </section>
 
       <button
