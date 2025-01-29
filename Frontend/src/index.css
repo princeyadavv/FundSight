@@ -92,3 +92,11 @@ td{
 
 
  
+.services-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: #5b5bb6;
+  cursor: pointer;
+}

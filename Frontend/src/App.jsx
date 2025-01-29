@@ -11,6 +11,7 @@ import Dashboard from "./Components/Chart/DashBoard";
 // import { Chart } from "";
 import ChartTo from "./Components/Chart/ChartTo";
 import Profile from "./Components/Profile/Profile";
+import ProfileDash from "./Components/Profile/ProfileDash";
 // import Home from "./pages/Home";
 // import Contact from "./pages/Contact";
 
@@ -27,6 +28,8 @@ const router = createBrowserRouter([
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/chart", element: <ChartTo /> },
       { path: "/profile", element: <Profile /> },
+      { path: "/profile/:id", element: <ProfileDash /> },
+      
     ],
   },
 ]);
