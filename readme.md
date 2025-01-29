@@ -36,7 +36,7 @@ Before you begin, ensure you have the following installed:
 
 1️⃣ Clone the repository:  
    ```bash
-   git clone https://github.com/your-repo/fundsight.git
+   git clone https://github.com/princeyadavv/FundSight.git
    cd fundsight
    ```
 
