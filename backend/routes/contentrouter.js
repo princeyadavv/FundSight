@@ -11,45 +11,53 @@ router.post("/upload", upload.single("file"),converter)
 router.post('/create', createPost);
 
 router.get('/api/new/fundingdata/data',(req,res)=>{
+    const {id} = req.body
 
   const year = req.query.year
-  const data = getDataFromDatabase();
+  const data = getDataFromDatabase(id);
 
   const result = newfundingdata(data,year)
   return res.status(200).json(result)
 })
 router.get('/api/fundingdata', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+    const data = getDataFromDatabase(id);
     const result = fundingdata(data);
     res.json(result);
   });
   
   router.get('/api/sector-distribution', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+    const data = getDataFromDatabase(id);
     const result = sectorDistribution(data);
     res.json(result);
   });
   
   router.get('/api/top-companies', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+
+    const data = getDataFromDatabase(id);
     const result = topPerformingCompanies(data);
     res.json(result);
   });
   
   router.get('/api/funding-round', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+    const data = getDataFromDatabase(id);
     const result = fundingRound(data);
     res.json(result);
   });
   
   router.get('/api/region-funding', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+    const data = getDataFromDatabase(id);
     const result = regionFunding(data);
     res.json(result);
   });
   
   router.get('/api/investor-participation', (req, res) => {
-    const data = getDataFromDatabase();
+    const {id} = req.body
+    const data = getDataFromDatabase(id);
     const result = investorParticipation(data);
     res.json(result);
   });
