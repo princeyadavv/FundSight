@@ -3,14 +3,24 @@ const router = express.Router()
 
 const{handleLogin,handleSignup,} = require('../controllers/staticrouter')
 const {fundingRound,fundingdata,sectorDistribution,investorParticipation,regionFunding,topPerformingCompanies,getDataFromDatabase} = require('../services/functions')
+const {newfundingdata} = require('../services/newfunction')
 
 
 router.post('/login',handleLogin)
 router.post('/signup',handleSignup)
 router.get('/dashboard',)
+router.get('/api/new/fundingdata/data',(req,res)=>{
+  console.log('request aagyi')
 
+  const year = req.query.year
+  console.log(year)
+  const data = getDataFromDatabase();
+
+  const result = newfundingdata(data,year)
+  console.log(result)
+  return res.status(200).json(result)
+})
 router.get('/api/fundingdata', (req, res) => {
-    console.log('request aagyi')
     const data = getDataFromDatabase();
     const result = fundingdata(data);
     res.json(result);

@@ -6,7 +6,10 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, Li
 ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale, LinearScale, BarElement, LineElement, PointElement);
 
 export default function DashBoard() {
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedSector, setSelectedSector] = useState('');
+  const [selectedRound, setSelectedRound] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
   const [years, setYears] = useState([]);
   const [sectors, setSectors] = useState([]);
   const [rounds, setRounds] = useState({});
@@ -19,14 +22,12 @@ export default function DashBoard() {
   const [companiesPerPage] = useState(10); // Show 10 companies per page
   const [investorsPerPage] = useState(10); // Show 10 investors per page
 
-  const handleChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
+
 
   useEffect(() => {
     const fetchData = async () => {
       let YearFundingData = await sendfunction('fundingdata');
-      setYearFundingData(YearFundingData); // Store the funding data
+      setYearFundingData(YearFundingData);
       let yearsData = YearFundingData.map((item) => item.monthYear.split('-')[1]);
       const yearsSet = new Set(yearsData);
       setYears([...yearsSet]);
@@ -40,17 +41,13 @@ export default function DashBoard() {
       const regionData = await sendfunction('region-funding');
       setRegions(regionData);
       const topCompanies = await sendfunction('top-companies');
-      setTopCompanies(topCompanies); // Store the top companies
+      setTopCompanies(topCompanies);
       const topInvestors = await sendfunction('investor-participation');
-      setTopInvestors(topInvestors); // Store the top investors
+      setTopInvestors(topInvestors);
     };
 
     fetchData();
-
-    return () => {
-      console.log('Cleanup');
-    };
-  }, []);
+  }, [selectedYear, selectedSector, selectedRound, selectedRegion]); // Trigger data fetching when any filter changes
 
   async function sendfunction(add) {
     const url = `http://localhost:5000/api/${add}`;
@@ -62,8 +59,54 @@ export default function DashBoard() {
       console.error('Error fetching data:', error);
     }
   }
+  useEffect(() => {
+    // Function to fetch data
+    const fetchNewData = async (add) => {
+        const url = `http://localhost:5000/api/${add}/data?year=${encodeURI(selectedYear)}&sector=${encodeURI(selectedSector)}&round=${encodeURI(selectedRound)}&region=${encodeURI(selectedRegion)}`;
+        console.log(url);  // Log or process the URL before fetching data
 
-  // Paginate the companies list
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log(data);  // Handle your fetched data
+            return data;  // Return the fetched data
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // Fetch and set data for all categories
+    const xfetchData = async () => {
+        let YearFundingData = await fetchNewData('fundingdata');
+        setYearFundingData(YearFundingData);
+
+        let yearsData = YearFundingData.map((item) => item.monthYear.split('-')[1]);
+        const yearsSet = new Set(yearsData);
+        setYears([...yearsSet]);
+
+        const sectorsData = await fetchNewData('sector-distribution');
+        setSectors(sectorsData);
+
+        const roundsData = await fetchNewData('funding-round');
+        setRounds(roundsData);
+
+        const regionData = await fetchNewData('region-funding');
+        setRegions(regionData);
+
+        const topCompanies = await fetchNewData('top-companies');
+        setTopCompanies(topCompanies);
+
+        const topInvestors = await fetchNewData('investor-participation');
+        setTopInvestors(topInvestors);
+    };
+
+    // Only fetch data if the selectedYear, selectedSector, selectedRound, selectedRegion are valid
+    if (selectedYear || selectedSector || selectedRound || selectedRegion) {
+        xfetchData();
+    }
+}, [selectedYear, selectedSector, selectedRound, selectedRegion]);
+  // Runs when any of these states change
+
   const indexOfLastCompany = currentCompanyPage * companiesPerPage;
   const indexOfFirstCompany = indexOfLastCompany - companiesPerPage;
   const currentCompanies = topCompanies.slice(indexOfFirstCompany, indexOfLastCompany);
@@ -216,7 +259,9 @@ export default function DashBoard() {
     <div className="p-4 max-w-md mx-auto">
       <h2>Select Options:</h2>
 
-      <select value={selectedOption} onChange={handleChange}>
+      <select value={selectedYear} onChange={(e)=> { 
+    setSelectedYear(e.target.value);
+}}>
         <option value="">All</option>
         {years.map((option, index) => (
           <option key={index} value={option}>
@@ -225,7 +270,7 @@ export default function DashBoard() {
         ))}
       </select>
 
-      <select>
+      <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)}>
         <option value="">All</option>
         {sectors.map((item, index) => (
           <option key={index} value={item.sector}>
@@ -234,7 +279,7 @@ export default function DashBoard() {
         ))}
       </select>
 
-      <select>
+      <select value={selectedRound} onChange={(e) => setSelectedRound(e.target.value)}>
         <option value="">All</option>
         {Object.keys(rounds).map((roundKey, index) => (
           <option key={index} value={roundKey}>
@@ -243,7 +288,7 @@ export default function DashBoard() {
         ))}
       </select>
 
-      <select>
+      <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
         <option value="">All</option>
         {regions.map((item, index) => (
           <option key={index} value={item.region}>
