@@ -1,18 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 function fundingdata(arr) {
-  // Check if arr is an array
+  
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return [];  // Return an empty array if arr is not an array
+    
+    return [];  
   }
 
   const fundingTrend = arr.reduce((accum, curr) => {
-    // Ensure curr.date is in a valid format
+    
     const date = new Date(curr.date);
     if (isNaN(date)) {
-      console.error("Invalid date:", curr.date);
-      return accum;  // Skip invalid dates
+      
+      return accum;  
     }
 
     const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
@@ -21,12 +21,12 @@ function fundingdata(arr) {
       accum[monthYear] = 0;
     }
 
-    // Ensure curr.amount is a valid number
+    
     const amount = parseInt(curr.amount || 0);
     if (!isNaN(amount)) {
       accum[monthYear] += amount;
     } else {
-      console.warn("Invalid amount for entry:", curr);
+      
     }
 
     return accum;
@@ -42,8 +42,8 @@ function fundingdata(arr) {
 
 function sectorDistribution(arr) {
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return [];  // Return an empty array if arr is not an array
+    
+    return [];  
   }
 
   const sectorFunding = arr.reduce((accum, curr) => {
@@ -64,7 +64,7 @@ function sectorDistribution(arr) {
       totalFunding: sectorFunding[sector]
     }))
     .sort((a, b) => b.totalFunding - a.totalFunding)
-    .slice(0, 10); // Limit to top 10 sectors
+    .slice(0, 10); 
 
   return topSectors;
 }
@@ -74,8 +74,8 @@ function sectorDistribution(arr) {
 
 function topPerformingCompanies(arr) {
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return [];  // Return an empty array if arr is not an array
+    
+    return [];  
   }
 
   const companyFunding = arr.reduce((accum, curr) => {
@@ -96,7 +96,7 @@ function topPerformingCompanies(arr) {
       totalFunding: companyFunding[company]
     }))
     .sort((a, b) => b.totalFunding - a.totalFunding)
-    .slice(0, 50); // Limit the result to the top 50 companies
+    .slice(0, 50); 
 
   return topCompanies;
 }
@@ -105,12 +105,12 @@ function topPerformingCompanies(arr) {
 
 function fundingRound(arr) {
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return {};  // Return an empty object if arr is not an array
+    
+    return {};  
   }
 
   const roundFunding = arr.reduce((accum, curr) => {
-    const round = curr.round ? curr.round.toLowerCase() : 'unknown';  // Fallback to 'unknown' if round is missing
+    const round = curr.round ? curr.round.toLowerCase() : 'unknown';  
 
     if (!accum[round]) {
       accum[round] = 0;
@@ -126,8 +126,8 @@ function fundingRound(arr) {
 
 function regionFunding(arr) {
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return [];  // Return an empty array if arr is not an array
+    
+    return [];  
   }
 
   const regionFunding = arr.reduce((accum, curr) => {
@@ -148,7 +148,7 @@ function regionFunding(arr) {
       totalFunding: regionFunding[region]
     }))
     .sort((a, b) => b.totalFunding - a.totalFunding)
-    .slice(0, 10); // Limit to top 10 regions
+    .slice(0, 10); 
 
   return topRegions;
 }
@@ -157,8 +157,8 @@ function regionFunding(arr) {
 
 function investorParticipation(arr) {
   if (!Array.isArray(arr)) {
-    console.error("Expected an array, but received:", arr);
-    return [];  // Return an empty array if arr is not an array
+    
+    return [];  
   }
 
   const investorCounts = arr.reduce((accum, curr) => {
@@ -183,20 +183,20 @@ function investorParticipation(arr) {
       participationCount: investorCounts[investor]
     }))
     .sort((a, b) => b.participationCount - a.participationCount)
-    .slice(0, 50); // Limit to top 50 investors
+    .slice(0, 50); 
 
   return topInvestors;
 }
 
 function getDataFromDatabase() {
-  const filePath = path.join(__dirname, 'result.json'); // Path to the result.json file
+  const filePath = path.join(__dirname, 'result.json'); 
 
   try {
-    // Read and parse the JSON data
+    
     const data = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error reading or parsing the database file:', error);
+    
     return [];
   }
 }

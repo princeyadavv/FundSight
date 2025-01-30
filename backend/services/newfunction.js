@@ -27,8 +27,6 @@ function filterData(arr, year, round, sector, city) {
 
 async function getDataFromDatabase(contentid) {
     const data = await content.findById(contentid);
-    console.log("yeh wala data")
-    console.log(data)
     const realdata = data.content
     return realdata
 }

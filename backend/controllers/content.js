@@ -41,7 +41,7 @@ async function createAndProcessPost(req, res) {
   const { title } = req.body;
   const user = req.user;
 
-  // Validate file upload
+  
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
@@ -51,7 +51,7 @@ async function createAndProcessPost(req, res) {
   let jsonData = [];
 
   try {
-    // Parse the uploaded file based on extension
+    
     if (ext === ".csv") {
       jsonData = await parseCSV(filePath);
     } else if (ext === ".xlsx" || ext === ".xls") {
@@ -62,18 +62,18 @@ async function createAndProcessPost(req, res) {
       return res.status(400).json({ error: "Invalid file format" });
     }
 
-    // Remove temporary file after processing
+    
     fs.unlinkSync(filePath);
 
-    // Create the new content document with title and user data
+    
     const objectId = new mongoose.Types.ObjectId(user._id);
     const newContent = await content.create({
       Title: title,
       createdBy: objectId,
-      content: jsonData // Attach the parsed content directly
+      content: jsonData 
     });
 
-    // Update user with the new content workflow
+    
     await users.findByIdAndUpdate(user._id, { $addToSet: { Workflows: newContent._id } });
 
     return res.json({ success: true, message: "Workflow created and data processed successfully", id: newContent.id });
