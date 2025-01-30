@@ -25,10 +25,15 @@ function filterData(arr, year, round, sector, city) {
     return arr;
 }
 
-async function getDataFromDatabase(contentid){
-    const data = await content.findById(contentid)
-    return data
+async function getDataFromDatabase(contentid) {
+    const data = await content.findById(contentid);
+    console.log("yeh wala data")
+    console.log(data)
+    const realdata = data.content
+    return realdata
 }
+
+  
 function newfundingdata(arr, year, round, sector, city) {
     arr = filterData(arr, year, round, sector, city); 
 
@@ -175,4 +180,5 @@ module.exports = {
     newfundingRound,
     newregionFunding,
     newinvestorParticipation,
+    getDataFromDatabase
 };

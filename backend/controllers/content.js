@@ -1,7 +1,6 @@
 const content = require('../models/content');
 const mongoose = require('mongoose');
 const users = require('../models/user');
-
 const csvParser = require("csv-parser");
 const ExcelJS = require("exceljs");
 const fs = require("fs");
@@ -38,80 +37,49 @@ const parseExcel = async (filePath) => {
   return jsonData;
 };
 
-async function converter(req, res) {
-    console.log('request aagyi');
-    const { id } = req.body;
-  
-    // Validate ObjectId format
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid ObjectId format" });
-    }
-  
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-  
-    const filePath = req.file.path;
-    const ext = path.extname(req.file.originalname).toLowerCase();
-    let jsonData = [];
-  
-    try {
-      // Parse the uploaded file based on extension
-      if (ext === ".csv") {
-        jsonData = await parseCSV(filePath);
-      } else if (ext === ".xlsx" || ext === ".xls") {
-        jsonData = await parseExcel(filePath);
-      } else if (ext === ".json") {
-        jsonData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-      } else {
-        return res.status(400).json({ error: "Invalid file format" });
-      }
-  
-      // Remove temporary file after processing
-      fs.unlinkSync(filePath);
-  
-      // Find the content document by id
-      const hamaracontent = await content.findById(id);
-      if (!hamaracontent) {
-        return res.status(404).json({ error: "Content not found" });
-      }
-  
-      // Append new data to the existing content array
-      hamaracontent.content = [...hamaracontent.content, ...jsonData];
-      
-      // Save the updated content
-      await hamaracontent.save();
-  
-      res.json({ success: true, id: hamaracontent.id });
-    } catch (error) {
-      res.status(500).json({ error: "Error processing file", details: error });
-    }
+async function createAndProcessPost(req, res) {
+  const { title } = req.body;
+  const user = req.user;
+
+  // Validate file upload
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
   }
-  
 
-async function createPost(req, res) {
+  const filePath = req.file.path;
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  let jsonData = [];
+
   try {
-    const { title } = req.body;
-    const user = req.user;
-    console.log(user._id)
-    const objectId = new mongoose.Types.ObjectId(user._id);
-    console.log(objectId)
+    // Parse the uploaded file based on extension
+    if (ext === ".csv") {
+      jsonData = await parseCSV(filePath);
+    } else if (ext === ".xlsx" || ext === ".xls") {
+      jsonData = await parseExcel(filePath);
+    } else if (ext === ".json") {
+      jsonData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    } else {
+      return res.status(400).json({ error: "Invalid file format" });
+    }
 
+    // Remove temporary file after processing
+    fs.unlinkSync(filePath);
+
+    // Create the new content document with title and user data
+    const objectId = new mongoose.Types.ObjectId(user._id);
     const newContent = await content.create({
       Title: title,
       createdBy: objectId,
+      content: jsonData // Attach the parsed content directly
     });
 
+    // Update user with the new content workflow
     await users.findByIdAndUpdate(user._id, { $addToSet: { Workflows: newContent._id } });
 
-    return res.status(200).json({ message: "Workflow created successfully", id: newContent.id });
+    return res.json({ success: true, message: "Workflow created and data processed successfully", id: newContent.id });
   } catch (error) {
-    return res.status(400).json({ message: error });
+    return res.status(500).json({ error: "Error processing file and creating workflow", details: error });
   }
 }
 
-async function getdata(){
-  
-}
-
-module.exports = { createPost, converter };
+module.exports = { createAndProcessPost };

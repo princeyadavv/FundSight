@@ -1,29 +1,53 @@
 const fs = require('fs');
 const path = require('path');
 function fundingdata(arr) {
+  // Check if arr is an array
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return [];  // Return an empty array if arr is not an array
+  }
+
   const fundingTrend = arr.reduce((accum, curr) => {
+    // Ensure curr.date is in a valid format
     const date = new Date(curr.date);
+    if (isNaN(date)) {
+      console.error("Invalid date:", curr.date);
+      return accum;  // Skip invalid dates
+    }
+
     const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
-    
+
     if (!accum[monthYear]) {
       accum[monthYear] = 0;
     }
-    accum[monthYear] += parseInt(curr.amount || 0);
-    
+
+    // Ensure curr.amount is a valid number
+    const amount = parseInt(curr.amount || 0);
+    if (!isNaN(amount)) {
+      accum[monthYear] += amount;
+    } else {
+      console.warn("Invalid amount for entry:", curr);
+    }
+
     return accum;
   }, {});
-  
+
   const trendData = Object.keys(fundingTrend).map(key => ({
     monthYear: key,
     totalFunding: fundingTrend[key]
   }));
-  
+
   return trendData;
 }
 
 function sectorDistribution(arr) {
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return [];  // Return an empty array if arr is not an array
+  }
+
   const sectorFunding = arr.reduce((accum, curr) => {
-    const vertical = curr.vertical.toLowerCase().trim();
+    const vertical = curr.vertical ? curr.vertical.toLowerCase().trim() : 'unknown';
 
     if (!accum[vertical]) {
       accum[vertical] = 0;
@@ -47,9 +71,15 @@ function sectorDistribution(arr) {
 
 
 
+
 function topPerformingCompanies(arr) {
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return [];  // Return an empty array if arr is not an array
+  }
+
   const companyFunding = arr.reduce((accum, curr) => {
-    const company = curr.startup;
+    const company = curr.startup || 'Unknown';
 
     if (!accum[company]) {
       accum[company] = 0;
@@ -72,9 +102,14 @@ function topPerformingCompanies(arr) {
 }
 
 
+
 function fundingRound(arr) {
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return {};  // Return an empty object if arr is not an array
+  }
+
   const roundFunding = arr.reduce((accum, curr) => {
-    // Check if round exists and is not undefined
     const round = curr.round ? curr.round.toLowerCase() : 'unknown';  // Fallback to 'unknown' if round is missing
 
     if (!accum[round]) {
@@ -90,6 +125,11 @@ function fundingRound(arr) {
 }
 
 function regionFunding(arr) {
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return [];  // Return an empty array if arr is not an array
+  }
+
   const regionFunding = arr.reduce((accum, curr) => {
     const region = curr.city || 'Unknown';
 
@@ -114,12 +154,17 @@ function regionFunding(arr) {
 }
 
 
+
 function investorParticipation(arr) {
+  if (!Array.isArray(arr)) {
+    console.error("Expected an array, but received:", arr);
+    return [];  // Return an empty array if arr is not an array
+  }
+
   const investorCounts = arr.reduce((accum, curr) => {
     const investors = curr.investors
-      .split(',')
-      .map(name => name.trim()) // Remove extra spaces
-      .filter(name => name);   // Exclude empty strings
+      ? curr.investors.split(',').map(name => name.trim()).filter(name => name) 
+      : [];
 
     investors.forEach(investor => {
       if (!accum[investor]) {

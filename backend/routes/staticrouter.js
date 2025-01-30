@@ -8,14 +8,7 @@ const {newfundingdata} = require('../services/newfunction')
 
 router.post('/login',handleLogin)
 router.post('/signup',handleSignup)
-router.get('/api/new/fundingdata/data',(req,res)=>{
 
-  const year = req.query.year
-  const data = getDataFromDatabase();
-
-  const result = newfundingdata(data,year)
-  return res.status(200).json(result)
-})
 router.get('/api/fundingdata', (req, res) => {
     const data = getDataFromDatabase();
     const result = fundingdata(data);

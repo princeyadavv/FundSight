@@ -1,7 +1,5 @@
-import { useParams } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Pie, Bar, Line } from "react-chartjs-2";
-import { RxCross2 } from "react-icons/rx";
 // import { useToken } from "../context/TokenContent"; // Adjust the path
 import {
   Chart as ChartJS,
@@ -29,9 +27,7 @@ ChartJS.register(
   PointElement
 );
 
-const ProfileDash = () => {
-  const { id } = useParams(); // Extract ID from URL
-
+export default function DashBoard() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0); // Track progress %
   // Function to simulate progress animation
@@ -63,47 +59,64 @@ const ProfileDash = () => {
   const [currentInvestorPage, setCurrentInvestorPage] = useState(1);
   const [companiesPerPage] = useState(10); // Show 10 companies per page
   const [investorsPerPage] = useState(10); // Show 10 investors per page
+  const [totalFunding,settotalFunding] = useState('')
 
   useEffect(() => {
+    console.log(window.location.href.split('/').pop())
     const fetchData = async () => {
       const YearFundingData = await sendfunction("fundingdata");
       setYearFundingData(YearFundingData);
-
+  
       let yearsData = YearFundingData.map(
         (item) => item.monthYear.split("-")[1]
       );
       const yearsSet = new Set(yearsData);
       setYears([...yearsSet]);
-
+  
       const sectorsData = await sendfunction("sector-distribution");
       setSectors(sectorsData);
-
+  
       const roundsData = await sendfunction("funding-round");
       setRounds(roundsData);
-
+  
       const regionData = await sendfunction("region-funding");
       setRegions(regionData);
-
+  
       const topCompanies = await sendfunction("top-companies");
       setTopCompanies(topCompanies);
-
+  
       const topInvestors = await sendfunction("investor-participation");
       setTopInvestors(topInvestors);
     };
-
+  
     fetchData();
+
+
   }, [selectedYear, selectedSector, selectedRound, selectedRegion]);
+  useEffect(() => {
+    const x = yearFundingData.reduce((sum, company) => sum + (company.totalFunding || 0), 0);
+    settotalFunding(x)
+    console.log(totalFunding)
+}, );
 
   async function sendfunction(add) {
     setLoading(true); //
     setProgress(0); //
     const progressInterval = startProgress(); // Start progress animation
 
-    const url = `http://localhost:5000/api/${add}`;
+    const url = `http://localhost:5000/workflow/api/${add}`;
     try {
-      const res = await fetch(url, { method: "GET" });
-      const data = await res.json();
-
+      const token = localStorage.getItem("bankai")
+      const res = await fetch(`${url}?id=${window.location.href.split('/').pop()}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `${token}`,
+          "Content-Type": "application/json", // You can keep this, but it's generally not needed for GET requests
+        },
+      });
+      
+            const data = await res.json();
+            console.log(data)
       if (data) {
         setProgress(100); // Complete progress immediately
         setTimeout(() => {
@@ -123,17 +136,25 @@ const ProfileDash = () => {
   useEffect(() => {
     // Function to fetch data
     const fetchNewData = async (add) => {
-      const url = `http://localhost:5000/api/${add}/data?year=${encodeURI(
+      const url = `http://localhost:5000/workflow/api/${add}/data?year=${encodeURI(
         selectedYear
       )}&sector=${encodeURI(selectedSector)}&round=${encodeURI(
         selectedRound
-      )}&region=${encodeURI(selectedRegion)}`;
+      )}&region=${encodeURI(selectedRegion)}&id=${window.location.href.split('/').pop()}`;
       console.log(url); // Log or process the URL before fetching data
 
       try {
-        const response = await fetch(url);
+        const token = localStorage.getItem("bankai")
+        console.log(token)
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json", // You can keep this, but it's generally not needed for GET requests
+          },
+        });
         const data = await response.json();
-        console.log(data); // Handle your fetched data
+         // Handle your fetched data
         return data; // Return the fetched data
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -338,123 +359,8 @@ const ProfileDash = () => {
     },
   };
 
-  // filr upload handling
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const token = localStorage.getItem("bankai"); // Get token
-    if (!file) {
-      alert("Please select a file to upload");
-      return;
-    }
-
-    // form work
-
-    // Create FormData object
-    const formData = new FormData();
-    formData.append("file", file); // Append file
-
-    try {
-      const response = await fetch("http://localhost:5000/workflow/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // Attach token
-        },
-        body: formData, // Send file
-      });
-
-      if (!response.ok) {
-        throw new Error("File upload failed");
-      }
-
-      alert("File uploaded successfully!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("File upload failed");
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-
-    if (!selectedFile) {
-      alert("No file selected.");
-      return;
-    }
-
-    // Validate file type (allow only CSV and JSON)
-    const allowedTypes = ["application/json", "text/csv"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      alert("Invalid file type. Please upload a CSV or JSON file.");
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (selectedFile.size > maxSize) {
-      alert("File size exceeds 5MB limit.");
-      return;
-    }
-
-    setFile(selectedFile);
-  };
-
   return (
     <div className="w-full h-fit center flex-col">
-      {/* File Button  */}
-      <button
-        onClick={() => {
-          const elements = document.getElementsByClassName("services-modal");
-          Array.from(elements).forEach((element) =>
-            element.classList.add("active-modal")
-          );
-        }}
-        className="fixed top-24 text-xl w-25 h-15 center right-8 bg-blue-500 text-white  p-4 shadow-lg focus:outline-none button"
-      >
-        Upload File
-      </button>
-      {/* form */}
-      <div className="services-modal">
-        <div className="services-modal-content">
-          <div className="services-modal-close"
-           onClick={() => {
-            const elements = document.getElementsByClassName("services-modal");
-            Array.from(elements).forEach((element) =>
-              element.classList.remove("active-modal")
-            );
-          }}>
-            <RxCross2 />
-          </div>
-          <form
-            className="flex flex-col items-center bg-white p-6 rounded-lg shadow-md mt-6"
-            onSubmit={handleSubmit}
-            encType="multipart/form-data"
-          >
-            {/* File Input */}
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="mb-4 p-2 border border-gray-300 rounded w-full"
-            />
-
-            {/* Upload Button */}
-            <button
-              type="submit"
-              onClick={() => {
-                const elements =
-                  document.getElementsByClassName("services-modal");
-                Array.from(elements).forEach((element) =>
-                  element.classList.remove("active-modal")
-                );
-              }}
-              className="bg-[#4e52b4] text-white p-2 rounded shadow"
-            >
-              Upload
-            </button>
-          </form>
-        </div>
-      </div>
-
       {/* Progress Bar */}
       {loading && (
         <div
@@ -521,6 +427,11 @@ const ProfileDash = () => {
           </select>
         </div>
       </div>
+      <div className="total-funding-container bg-white shadow-lg rounded-lg p-6 text-center">
+  <h2 className="total-funding-heading text-2xl font-semibold text-gray-800">Total Funding For All year</h2>
+  <p className="total-funding-amount text-3xl font-bold text-blue-600 mt-2">${totalFunding.toLocaleString()}</p>
+</div>
+
 
       <div className="w-[90vw] md:w-[95vw] min-h-[60vh] py-10 center flex-col md:flex-row gap-10">
         {/* Display Sector Pie Chart */}
@@ -558,7 +469,7 @@ const ProfileDash = () => {
           )}
         </div>
       </div>
-
+  
       <div className="w-[90vw] md:w-[95vw] min-h-[60vh] py-10 center flex-col md:flex-row gap-10">
         {/* Display Round Pie Chart */}
         <div className="p-6 bg-white rounded-2xl shadow-lg">
@@ -595,7 +506,7 @@ const ProfileDash = () => {
           )}
         </div>
       </div>
-
+  
       <div className="w-[90vw] md:w-[95vw] min-h-[60vh] py-10 center flex-col md:flex-row gap-10">
         {/* Display Top Companies Leaderboard */}
         <div className="p-6 bg-white rounded-2xl shadow-lg">
@@ -622,7 +533,7 @@ const ProfileDash = () => {
               ))}
             </tbody>
           </table>
-
+  
           {/* Pagination Controls for Companies */}
           <div className="mt-4 flex justify-center space-x-2">
             {Array.from(
@@ -639,7 +550,7 @@ const ProfileDash = () => {
             )}
           </div>
         </div>
-
+  
         {/* Display Top Investors Leaderboard */}
         <div className="p-6 bg-white rounded-2xl shadow-lg">
           <h3 className="text-3xl font-bold text-gray-800 mb-4 text-center">
@@ -660,14 +571,12 @@ const ProfileDash = () => {
               {currentInvestors.map((investorData, index) => (
                 <tr key={index} className="border-t">
                   <td className="px-4 py-2">{investorData.investor}</td>
-                  <td className="px-4 py-2">
-                    {investorData.participationCount}
-                  </td>
+                  <td className="px-4 py-2">{investorData.participationCount}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-
+  
           {/* Pagination Controls for Investors */}
           <div className="mt-4 flex justify-center space-x-2">
             {Array.from(
@@ -687,6 +596,5 @@ const ProfileDash = () => {
       </div>
     </div>
   );
-};
-
-export default ProfileDash;
+  
+}
