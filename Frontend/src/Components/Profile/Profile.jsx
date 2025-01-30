@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../context/TokenContent";
 import { RxCross2 } from "react-icons/rx";
-// import TitleCard from "./TitleCard"; // Import TitleCard component
 import { CiSquarePlus } from "react-icons/ci";
 import ProfileCard from "./ProfileCard";
 
@@ -11,9 +10,35 @@ const Profile = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [titles, setTitles] = useState([]); // Store fetched data
+  const [file, setFile] = useState(""); // Moved inside the component
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (!selectedFile) {
+      alert("No file selected.");
+      return;
+    }
+
+    // Validate file type (allow only CSV and JSON)
+    const allowedTypes = ["application/json", "text/csv"];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      alert("Invalid file type. Please upload a CSV or JSON file.");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (selectedFile.size > maxSize) {
+      alert("File size exceeds 5MB limit.");
+      return;
+    }
+
+    setFile(selectedFile);
   };
 
   const logout = () => {
@@ -25,14 +50,24 @@ const Profile = () => {
     e.preventDefault();
     const token = localStorage.getItem("bankai"); // Retrieve token
 
+    // Ensure file and title exist
+    if (!file || !title) {
+      alert("Please select a file and enter a title.");
+      return;
+    }
+
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("file", file); // Append file
+    formData.append("title", title);
+
     try {
       const response = await fetch("http://localhost:5000/workflow/create", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Authorization header
         },
-        body: JSON.stringify({ title }),
+        body: formData, // Send FormData (not JSON)
       });
 
       if (!response.ok) {
@@ -43,7 +78,7 @@ const Profile = () => {
       fetchData();
     } catch (error) {
       console.error("Error uploading title:", error);
-      logout();
+      alert(error);
       alert("Title upload failed");
     }
   };
@@ -133,6 +168,12 @@ const Profile = () => {
               value={title}
               onChange={handleTitleChange}
               placeholder="Title"
+              className="mb-4 p-2 border border-gray-300 rounded w-full"
+            />
+            {/* File Input */}
+            <input
+              type="file"
+              onChange={handleFileChange}
               className="mb-4 p-2 border border-gray-300 rounded w-full"
             />
 
